@@ -29,6 +29,17 @@ router.post('/', async (req, res) => {
   try {
     const { channelId, userId, content, image } = req.body;
     
+    // Vérifier si le canal existe
+    const { data: channel, error: channelError } = await supabase
+      .from('channels')
+      .select('*')
+      .eq('id', channelId)
+      .single();
+
+    if (channelError || !channel) {
+      return res.status(400).json({ error: 'Le canal spécifié n\'existe pas' });
+    }
+    
     let imageUrl = null;
     
     // Télécharger l'image si elle existe

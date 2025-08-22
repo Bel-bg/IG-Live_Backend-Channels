@@ -36,6 +36,18 @@ router.post('/', async (req, res) => {
   try {
     const { name, image } = req.body;
     
+    // Vérifier si un canal avec le même nom existe déjà
+    const { data: existingChannels, error: fetchError } = await supabase
+      .from('channels')
+      .select('*')
+      .eq('name', name);
+
+    if (fetchError) throw fetchError;
+
+    if (existingChannels.length > 0) {
+      return res.status(400).json({ error: 'Un canal avec ce nom existe déjà' });
+    }
+    
     // Créer le canal
     const { data, error } = await supabase
       .from('channels')
