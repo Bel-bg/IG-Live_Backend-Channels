@@ -28,7 +28,7 @@ router.get('/:channelId', async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     const { channelId, userId, content, image } = req.body;
-    
+
     // Vérifier si le canal existe
     const { data: channel, error: channelError } = await supabase
       .from('channels')
@@ -39,26 +39,15 @@ router.post('/', async (req, res) => {
     if (channelError || !channel) {
       return res.status(400).json({ error: 'Le canal spécifié n\'existe pas' });
     }
-    
-    let imageUrl = null;
-    
-    // Télécharger l'image si elle existe
-    if (image) {
-      const uploadResult = await imagekit.upload({
-        file: image,
-        fileName: `message_${Date.now()}.jpg`,
-      });
-      imageUrl = uploadResult.url;
-    }
-    
-    // Créer le message
+
+    // Créer le message (image est déjà l'URL uploadée par le frontend)
     const { data, error } = await supabase
       .from('messages')
       .insert([{
         channel_id: channelId,
         user_id: userId,
         content,
-        image: imageUrl
+        image
       }])
       .select();
 
